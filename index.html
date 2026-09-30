@@ -7,7 +7,39 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=login-fix-2" />
+  <script>
+    /* This login fallback is intentionally independent of Supabase and app.js.
+       It makes the classroom prototype enter the dashboard immediately. */
+    window.manualSignIn = function (event) {
+      if (event) event.preventDefault();
+
+      const form = document.getElementById('loginForm');
+      const email = form.elements.email.value.trim();
+      const password = form.elements.password.value;
+      const message = document.getElementById('loginError');
+      const button = document.getElementById('loginButton');
+
+      message.textContent = '';
+      button.disabled = false;
+      button.textContent = 'Sign in';
+      if (!email || !password) {
+        message.textContent = 'Enter your email and password.';
+        return false;
+      }
+
+      localStorage.setItem('scholarTrackStaffSession', email);
+      document.getElementById('loginScreen').hidden = true;
+      document.getElementById('appShell').hidden = false;
+      document.getElementById('signedInEmail').textContent = email;
+
+      if (typeof window.showScholarTrackApp === 'function') {
+        Promise.resolve(window.showScholarTrackApp({ user: { email } }))
+          .catch(console.error);
+      }
+      return false;
+    };
+  </script>
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
@@ -16,10 +48,10 @@
       <p class="eyebrow">SCHOLARSHIP OFFICE</p>
       <h1>Welcome back</h1>
       <p class="login-copy">Sign in to manage scholar records and academic compliance.</p>
-      <form id="loginForm" class="login-form">
+      <form id="loginForm" class="login-form" onsubmit="return window.manualSignIn(event)">
         <label>Email address<input type="email" name="email" required placeholder="staff@university.edu" /></label>
         <label>Password<input type="password" name="password" required placeholder="Enter your password" /></label>
-        <button type="button" class="btn btn-primary" id="loginButton" onclick="manualSignIn()">Sign in</button>
+        <button type="submit" class="btn btn-primary" id="loginButton">Sign in</button>
       </form>
       <p class="login-error" id="loginError" aria-live="polite"></p>
       <p class="login-help">Only authorized Scholarship Office staff may access this system.</p>
@@ -83,26 +115,6 @@
   <div id="toast"></div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="app.js"></script>
-  <script>
-    // Classroom prototype login: works immediately and does not depend on a network Auth request.
-    function manualSignIn() {
-      const email = document.querySelector('#loginForm [name="email"]').value.trim();
-      const password = document.querySelector('#loginForm [name="password"]').value;
-      const message = document.getElementById('loginError');
-      const button = document.getElementById('loginButton');
-      message.textContent = '';
-      if (!email || !password) { message.textContent = 'Enter your email and password.'; return; }
-      // Accept the staff details entered for this classroom prototype.
-      localStorage.setItem('scholarTrackStaffSession', email);
-      // Switch immediately so the login screen cannot remain stuck.
-      document.getElementById('loginScreen').hidden = true;
-      document.getElementById('appShell').hidden = false;
-      document.getElementById('signedInEmail').textContent = email;
-      if (typeof window.showScholarTrackApp === 'function') {
-        window.showScholarTrackApp({ user: { email } });
-      }
-    }
-  </script>
+  <script src="app.js?v=login-fix-2"></script>
 </body>
 </html>
