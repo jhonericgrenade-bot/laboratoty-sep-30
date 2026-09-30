@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScholarTrack | Scholarship Monitoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <section class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div class="login-mark">S</div>
+      <p class="eyebrow">SCHOLARSHIP OFFICE</p>
+      <h1>Welcome back</h1>
+      <p class="login-copy">Sign in to manage scholar records and academic compliance.</p>
+      <form id="loginForm" class="login-form">
+        <label>Email address<input type="email" name="email" required placeholder="staff@university.edu" /></label>
+        <label>Password<input type="password" name="password" required placeholder="Enter your password" /></label>
+        <button type="button" class="btn btn-primary" id="loginButton" onclick="manualSignIn()">Sign in</button>
+      </form>
+      <p class="login-error" id="loginError" aria-live="polite"></p>
+      <p class="login-help">Only authorized Scholarship Office staff may access this system.</p>
+    </div>
+  </section>
+  <div id="appShell" hidden>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">S</span><span>Scholar<span>Track</span></span></div>
+    <p class="office-label">Scholarship Office</p>
+    <nav>
+      <button class="nav-link active" data-view="dashboard"><span>▦</span> Dashboard</button>
+      <button class="nav-link" data-view="scholars"><span>♙</span> Scholars</button>
+      <button class="nav-link" data-view="submissions"><span>▤</span> Grade Submissions <b id="pendingBadge">0</b></button>
+      <button class="nav-link" data-view="compliance"><span>✓</span> Compliance</button>
+      <button class="nav-link" data-view="reports"><span>▥</span> Reports</button>
+    </nav>
+    <div class="sidebar-bottom"><div class="user-avatar">SS</div><div><strong>Scholarship Staff</strong><small id="signedInEmail">staff@university.edu</small></div><button class="logout-btn" id="logoutButton" title="Logout">↪</button></div>
+  </aside>
+
+  <main>
+    <header><div><p class="eyebrow">ACADEMIC YEAR 2026–2027</p><h1 id="pageTitle">Good morning, Staff</h1></div><div class="header-actions"><button class="icon-btn" title="Notifications">♧</button><button class="btn btn-primary" id="quickAction">+ Register Scholar</button></div></header>
+
+    <section id="dashboard" class="view active">
+      <div class="stats-grid">
+        <article class="stat-card blue"><span>♙</span><p>Total Active Scholars</p><strong id="totalScholars">0</strong><small>currently enrolled</small></article>
+        <article class="stat-card amber"><span>◷</span><p>Pending Submission</p><strong id="pendingSubmissions">0</strong><small>needs grade submission</small></article>
+        <article class="stat-card violet"><span>⌛</span><p>For Verification</p><strong id="forVerification">0</strong><small>awaiting staff review</small></article>
+        <article class="stat-card green"><span>✓</span><p>Compliant</p><strong id="compliantCount">0</strong><small>requirements completed</small></article>
+      </div>
+      <div class="dashboard-grid">
+        <section class="panel wide"><div class="panel-head"><div><h2>Submission overview</h2><p>Current semester compliance progress</p></div></div><div class="progress-wrap"><div class="progress-label"><span>Grade submission completion</span><b id="submissionPercent">0%</b></div><div class="progress"><i id="submissionProgress"></i></div></div><div class="status-summary" id="statusSummary"></div></section>
+        <section class="panel"><div class="panel-head"><div><h2>Quick actions</h2><p>Common staff tasks</p></div></div><div class="quick-actions"><button data-action="register">+ Register a scholar</button><button data-action="submission">↑ Add grade submission</button><button data-action="verify">✓ Verify submissions</button><button data-action="report">▥ View compliance report</button></div></section>
+        <section class="panel wide"><div class="panel-head"><div><h2>Recent grade submissions</h2><p>Latest activity requiring attention</p></div><button class="text-btn" data-go="submissions">View all →</button></div><div class="table-wrap"><table><thead><tr><th>SCHOLAR</th><th>PROGRAM</th><th>PERIOD</th><th>GPA</th><th>STATUS</th><th></th></tr></thead><tbody id="recentSubmissions"></tbody></table></div></section>
+      </div>
+    </section>
+
+    <section id="scholars" class="view">
+      <div class="view-title"><div><h2>Scholar records</h2><p>Register and manage scholarship recipients.</p></div><button class="btn btn-primary" data-action="register">+ Register Scholar</button></div>
+      <div class="panel"><div class="filters"><input id="scholarSearch" placeholder="Search by name or student number..." /><select id="statusFilter"><option value="">All statuses</option><option>Active</option><option>Pending Submission</option><option>For Verification</option><option>Compliant</option><option>With Deficiency</option><option>Probationary</option><option>For Renewal</option><option>Renewed</option><option>Disqualified</option></select></div><div class="table-wrap"><table><thead><tr><th>STUDENT NO.</th><th>SCHOLAR</th><th>SCHOLARSHIP PROGRAM</th><th>COURSE</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="scholarsTable"></tbody></table></div></div>
+    </section>
+
+    <section id="submissions" class="view">
+      <div class="view-title"><div><h2>Grade submissions</h2><p>Review semester grades and supporting records.</p></div><button class="btn btn-primary" data-action="submission">+ Add Submission</button></div>
+      <div class="panel"><div class="filters"><select id="submissionFilter"><option value="">All submission statuses</option><option>For Verification</option><option>Verified</option><option>Returned</option></select></div><div class="table-wrap"><table><thead><tr><th>SCHOLAR</th><th>ACADEMIC PERIOD</th><th>GPA</th><th>DOCUMENT</th><th>SUBMITTED ON</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="submissionsTable"></tbody></table></div></div>
+    </section>
+
+    <section id="compliance" class="view">
+      <div class="view-title"><div><h2>Academic compliance</h2><p>Evaluate verified submissions against scholarship rules.</p></div></div>
+      <div class="panel"><div class="table-wrap"><table><thead><tr><th>SCHOLAR</th><th>PROGRAM REQUIREMENT</th><th>VERIFIED GPA</th><th>CURRENT STATUS</th><th>RESULT</th><th>ACTION</th></tr></thead><tbody id="complianceTable"></tbody></table></div></div>
+    </section>
+
+    <section id="reports" class="view">
+      <div class="view-title"><div><h2>Compliance report</h2><p>Summary for scholarship office monitoring.</p></div><button class="btn btn-outline" id="printReport">⎙ Print Report</button></div>
+      <div class="report-card"><h2>Scholarship compliance summary</h2><p id="reportPeriod">Academic Year 2026–2027 · First Semester</p><div class="report-grid" id="reportGrid"></div><h3>Scholars requiring attention</h3><div class="table-wrap"><table><thead><tr><th>SCHOLAR</th><th>PROGRAM</th><th>STATUS</th><th>REMARKS</th></tr></thead><tbody id="attentionTable"></tbody></table></div></div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modal"><button class="close-modal" id="closeModal">×</button><div id="modalContent"></div></div>
+  </div>
+  <div id="toast"></div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Independent fallback for the login button. It works even if the CDN client loads slowly.
+    async function manualSignIn() {
+      const email = document.querySelector('#loginForm [name="email"]').value.trim();
+      const password = document.querySelector('#loginForm [name="password"]').value;
+      const message = document.getElementById('loginError');
+      const button = document.getElementById('loginButton');
+      message.textContent = '';
+      if (!email || !password) { message.textContent = 'Enter your email and password.'; return; }
+      button.disabled = true; button.textContent = 'Signing in...';
+      try {
+        const response = await fetch('https://vtqgrgxxkaykhtpqzhqe.supabase.co/auth/v1/token?grant_type=password', {
+          method: 'POST',
+          headers: { 'apikey': 'sb_publishable_wxfGAEOZXvUUXGM6z0aGsw_Bo-eFhj-', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error_description || result.msg || 'Sign in failed.');
+        // Establish the session in the already-running Supabase client, then open the app.
+        const sessionResult = await window.scholarTrackDb.auth.setSession({
+          access_token: result.access_token,
+          refresh_token: result.refresh_token
+        });
+        if (sessionResult.error) throw sessionResult.error;
+        await window.showScholarTrackApp(sessionResult.data.session);
+      } catch (err) {
+        message.textContent = err.message;
+        button.disabled = false; button.textContent = 'Sign in';
+      }
+    }
+  </script>
+</body>
+</html>
