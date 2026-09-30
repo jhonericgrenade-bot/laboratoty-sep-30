@@ -95,11 +95,15 @@
       if (!email || !password) { message.textContent = 'Enter your email and password.'; return; }
       button.disabled = true; button.textContent = 'Signing in...';
       try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
         const response = await fetch('https://vtqgrgxxkaykhtpqzhqe.supabase.co/auth/v1/token?grant_type=password', {
           method: 'POST',
           headers: { 'apikey': 'sb_publishable_wxfGAEOZXvUUXGM6z0aGsw_Bo-eFhj-', 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password }),
+          signal: controller.signal
         });
+        clearTimeout(timeout);
         const result = await response.json();
         if (!response.ok) throw new Error(result.error_description || result.msg || 'Sign in failed.');
         // Establish the session in the already-running Supabase client, then open the app.
@@ -110,7 +114,9 @@
         if (sessionResult.error) throw sessionResult.error;
         await window.showScholarTrackApp(sessionResult.data.session);
       } catch (err) {
-        message.textContent = err.message;
+        message.textContent = err.name === 'AbortError'
+          ? 'The login request timed out. Check your internet connection, then try again.'
+          : err.message;
         button.disabled = false; button.textContent = 'Sign in';
       }
     }
