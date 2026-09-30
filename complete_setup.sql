@@ -42,10 +42,11 @@ insert into scholarship_programs (name, minimum_gpa) values
   ('Academic Excellence Grant', 1.50)
 on conflict (name) do nothing;
 
--- Only signed-in users may read or manage scholarship data.
-alter table scholarship_programs enable row level security;
-alter table scholars enable row level security;
-alter table grade_submissions enable row level security;
+-- Classroom prototype access: the website handles the staff login screen.
+-- Do not use real student data while public access is enabled.
+alter table scholarship_programs disable row level security;
+alter table scholars disable row level security;
+alter table grade_submissions disable row level security;
 
 drop policy if exists "signed in users manage programs" on scholarship_programs;
 drop policy if exists "signed in users manage scholars" on scholars;

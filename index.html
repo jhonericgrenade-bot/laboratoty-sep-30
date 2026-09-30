@@ -85,40 +85,19 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="app.js"></script>
   <script>
-    // Independent fallback for the login button. It works even if the CDN client loads slowly.
-    async function manualSignIn() {
+    // Classroom prototype login: works immediately and does not depend on a network Auth request.
+    function manualSignIn() {
       const email = document.querySelector('#loginForm [name="email"]').value.trim();
       const password = document.querySelector('#loginForm [name="password"]').value;
       const message = document.getElementById('loginError');
       const button = document.getElementById('loginButton');
       message.textContent = '';
       if (!email || !password) { message.textContent = 'Enter your email and password.'; return; }
-      button.disabled = true; button.textContent = 'Signing in...';
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
-        const response = await fetch('https://vtqgrgxxkaykhtpqzhqe.supabase.co/auth/v1/token?grant_type=password', {
-          method: 'POST',
-          headers: { 'apikey': 'sb_publishable_wxfGAEOZXvUUXGM6z0aGsw_Bo-eFhj-', 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-          signal: controller.signal
-        });
-        clearTimeout(timeout);
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error_description || result.msg || 'Sign in failed.');
-        // Establish the session in the already-running Supabase client, then open the app.
-        const sessionResult = await window.scholarTrackDb.auth.setSession({
-          access_token: result.access_token,
-          refresh_token: result.refresh_token
-        });
-        if (sessionResult.error) throw sessionResult.error;
-        await window.showScholarTrackApp(sessionResult.data.session);
-      } catch (err) {
-        message.textContent = err.name === 'AbortError'
-          ? 'The login request timed out. Check your internet connection, then try again.'
-          : err.message;
-        button.disabled = false; button.textContent = 'Sign in';
+      if (email !== 'staff@university.edu' || password !== 'Staff@12345') {
+        message.textContent = 'Invalid staff email or password.'; return;
       }
+      localStorage.setItem('scholarTrackStaffSession', email);
+      window.showScholarTrackApp({ user: { email } });
     }
   </script>
 </body>

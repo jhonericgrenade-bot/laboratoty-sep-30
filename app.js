@@ -111,20 +111,7 @@ function showLogin() {
   $('#loginForm').reset();
   $('#loginError').textContent = '';
 }
-$('#loginForm').onsubmit = async event => {
-  event.preventDefault();
-  const form = new FormData(event.target), button = $('#loginButton');
-  $('#loginError').textContent = '';
-  button.disabled = true; button.textContent = 'Signing in...';
-  const { data: authData, error: authError } = await db.auth.signInWithPassword({
-    email: form.get('email'), password: form.get('password')
-  });
-  button.disabled = false; button.textContent = 'Sign in';
-  if (authError) return error(authError.message);
-  showApp(authData.session);
-};
-$('#logoutButton').onclick = async () => { await db.auth.signOut(); showLogin(); toast('You have been signed out.'); };
-(async () => {
-  const { data: { session } } = await db.auth.getSession();
-  if (session) showApp(session); else showLogin();
-})();
+$('#loginForm').onsubmit = event => { event.preventDefault(); window.manualSignIn(); };
+$('#logoutButton').onclick = () => { localStorage.removeItem('scholarTrackStaffSession'); showLogin(); toast('You have been signed out.'); };
+const savedStaffEmail = localStorage.getItem('scholarTrackStaffSession');
+if (savedStaffEmail) showApp({ user: { email: savedStaffEmail } }); else showLogin();
