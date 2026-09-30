@@ -93,11 +93,15 @@
       const button = document.getElementById('loginButton');
       message.textContent = '';
       if (!email || !password) { message.textContent = 'Enter your email and password.'; return; }
-      if (email !== 'staff@university.edu' || password !== 'Staff@12345') {
-        message.textContent = 'Invalid staff email or password.'; return;
-      }
+      // Accept the staff details entered for this classroom prototype.
       localStorage.setItem('scholarTrackStaffSession', email);
-      window.showScholarTrackApp({ user: { email } });
+      // Switch immediately so the login screen cannot remain stuck.
+      document.getElementById('loginScreen').hidden = true;
+      document.getElementById('appShell').hidden = false;
+      document.getElementById('signedInEmail').textContent = email;
+      if (typeof window.showScholarTrackApp === 'function') {
+        window.showScholarTrackApp({ user: { email } });
+      }
     }
   </script>
 </body>
