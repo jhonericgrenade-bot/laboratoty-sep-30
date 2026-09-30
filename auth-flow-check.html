@@ -1,0 +1,18 @@
+<!doctype html><body>Starting</body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(async () => {
+  try {
+    document.body.textContent = 'fetching';
+    const response = await fetch('https://vtqgrgxxkaykhtpqzhqe.supabase.co/auth/v1/token?grant_type=password', {method:'POST',headers:{apikey:'sb_publishable_wxfGAEOZXvUUXGM6z0aGsw_Bo-eFhj-','Content-Type':'application/json'},body:JSON.stringify({email:'staff@university.edu',password:'Staff@12345'})});
+    document.body.textContent = 'response '+response.status;
+    const result = await response.json();
+    if (!response.ok) throw new Error(JSON.stringify(result));
+    const db = supabase.createClient('https://vtqgrgxxkaykhtpqzhqe.supabase.co','sb_publishable_wxfGAEOZXvUUXGM6z0aGsw_Bo-eFhj-');
+    document.body.textContent = 'setting session';
+    const sessionResult = await db.auth.setSession({access_token:result.access_token,refresh_token:result.refresh_token});
+    if (sessionResult.error) throw sessionResult.error;
+    document.body.textContent = 'SUCCESS '+sessionResult.data.session.user.email;
+  } catch (error) { document.body.textContent = 'ERROR '+error.message; }
+})();
+</script>
